@@ -1,22 +1,28 @@
 # Smart Alpha Engine Architecture
 
-## Layers
+## Modules
 
-Domain
-Application
-Infrastructure
-AI Layer
+SmartAlpha.API
+SmartAlpha.Domain
+SmartAlpha.Data
+SmartAlpha.Analytics
+SmartAlpha.Reporting
 
-## Initial Modules
+## Dependency Rules
 
-Portfolio
-MarketData
-Risk
-Output
+API → Reporting → Analytics → Domain
 
-## Goals
+Data → Domain
 
-- Modular
-- Testable
-- Replaceable
-- AI-ready
+Domain does NOT depend on Data
+
+Analytics depends on Domain
+
+Reporting depends on Analytics
+
+## Principles
+
+- Modular Monolith
+- Domain-first design
+- Replaceable infrastructure
+- AI-ready design
