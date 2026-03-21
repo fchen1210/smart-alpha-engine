@@ -1,6 +1,7 @@
 using SmartAlpha.Analytics.Analysis;
 using SmartAlpha.Data;
 using SmartAlpha.Analytics.Validation;
+using SmartAlpha.Reporting.Formatters;
 
 var filePath = Path.GetFullPath(Path.Combine(
     Directory.GetCurrentDirectory(),
@@ -30,14 +31,10 @@ if (!validationResult.IsValid)
 }
 
 var analyzer = new PortfolioAnalyzer();
+
 var summary = analyzer.Analyze(portfolio);
 
-Console.WriteLine();
-Console.WriteLine("Portfolio Summary");
-Console.WriteLine($"- Equity exposure: {summary.EquityExposure:P2}");
-Console.WriteLine($"- Cash allocation: {summary.CashAllocation:P2}");
-Console.WriteLine($"- Tech concentration: {summary.TechConcentration}");
-Console.WriteLine($"- Single stock concentration: {summary.SingleStockConcentration}");
-Console.WriteLine();
-Console.WriteLine("Risk Note");
-Console.WriteLine(summary.RiskNote);
+var formatter = new PortfolioSummaryFormatter();
+var output = formatter.Format(summary);
+
+Console.WriteLine(output);
