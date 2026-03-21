@@ -1,0 +1,6 @@
+@SmartAlpha.API_HostAddress = http://localhost:5056
+
+GET {{SmartAlpha.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
