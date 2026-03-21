@@ -1,41 +1,43 @@
-var builder = WebApplication.CreateBuilder(args);
+using SmartAlpha.Analytics.Analysis;
+using SmartAlpha.Data;
+using SmartAlpha.Analytics.Validation;
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+var filePath = Path.GetFullPath(Path.Combine(
+    Directory.GetCurrentDirectory(),
+    "..",
+    "..",
+    "data",
+    "portfolio.sample.json"));
 
-var app = builder.Build();
+Console.WriteLine($"Loading portfolio from: {filePath}");
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+var loader = new PortfolioLoader();
+var portfolio = loader.LoadFromFile(filePath);
+
+var validator = new PortfolioValidator();
+var validationResult = validator.Validate(portfolio);
+
+if (!validationResult.IsValid)
 {
-    app.MapOpenApi();
+    Console.WriteLine("Portfolio validation failed:");
+
+    foreach (var error in validationResult.Errors)
+    {
+        Console.WriteLine($"- {error}");
+    }
+
+    return;
 }
 
-app.UseHttpsRedirection();
+var analyzer = new PortfolioAnalyzer();
+var summary = analyzer.Analyze(portfolio);
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+Console.WriteLine();
+Console.WriteLine("Portfolio Summary");
+Console.WriteLine($"- Equity exposure: {summary.EquityExposure:P2}");
+Console.WriteLine($"- Cash allocation: {summary.CashAllocation:P2}");
+Console.WriteLine($"- Tech concentration: {summary.TechConcentration}");
+Console.WriteLine($"- Single stock concentration: {summary.SingleStockConcentration}");
+Console.WriteLine();
+Console.WriteLine("Risk Note");
+Console.WriteLine(summary.RiskNote);

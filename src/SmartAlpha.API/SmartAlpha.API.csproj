@@ -17,4 +17,10 @@
     <ProjectReference Include="..\SmartAlpha.Reporting\SmartAlpha.Reporting.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+  <None Include="../../data/portfolio.sample.json">
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
+
 </Project>
