@@ -2,19 +2,17 @@ namespace SmartAlpha.Core.Models.Market;
 
 public class PriceBar
 {
-    public DateTime Date { get; init; }
+    public DateTime Date { get; private set; }
 
-    public decimal Open { get; init; }
+    public decimal Open { get; private set; }
 
-    public decimal High { get; init; }
+    public decimal High { get; private set; }
 
-    public decimal Low { get; init; }
+    public decimal Low { get; private set; }
 
-    public decimal Close { get; init; }
+    public decimal Close { get; private set; }
 
-    public decimal Volume { get; init; }
-
-    public PriceBar() { }
+    public decimal Volume { get; private set; }
 
     public PriceBar(DateTime date, decimal open, decimal high, decimal low, decimal close, decimal volume)
     {

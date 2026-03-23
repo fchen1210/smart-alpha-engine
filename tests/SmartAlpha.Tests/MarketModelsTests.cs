@@ -35,6 +35,23 @@ public class MarketModelsTests
         Assert.Equal("Binance", instrument.Exchange);
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Instrument_Constructor_ThrowsWhenSymbolIsEmpty(string symbol)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            new Instrument(symbol, "Apple Inc.", AssetType.Stock, "USD", "NASDAQ"));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Instrument_InitSetter_ThrowsWhenSymbolIsEmpty(string symbol)
+    {
+        Assert.Throws<ArgumentException>(() => new Instrument { Symbol = symbol });
+    }
+
     [Fact]
     public void PriceBar_Constructor_SetsAllProperties()
     {
@@ -50,25 +67,24 @@ public class MarketModelsTests
     }
 
     [Fact]
-    public void PriceBar_InitProperties_SetsAllProperties()
+    public void PriceBar_Constructor_ThrowsWhenHighLessThanLow()
     {
-        var date = new DateTime(2024, 6, 1);
-        var bar = new PriceBar
-        {
-            Date = date,
-            Open = 100m,
-            High = 110m,
-            Low = 95m,
-            Close = 105m,
-            Volume = 500_000m
-        };
+        Assert.Throws<ArgumentException>(() =>
+            new PriceBar(DateTime.Today, 100m, 90m, 95m, 100m, 1000m));
+    }
 
-        Assert.Equal(date, bar.Date);
-        Assert.Equal(100m, bar.Open);
-        Assert.Equal(110m, bar.High);
-        Assert.Equal(95m, bar.Low);
-        Assert.Equal(105m, bar.Close);
-        Assert.Equal(500_000m, bar.Volume);
+    [Fact]
+    public void PriceBar_Constructor_ThrowsWhenOpenOutsideHighLowRange()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            new PriceBar(DateTime.Today, 120m, 110m, 100m, 105m, 1000m));
+    }
+
+    [Fact]
+    public void PriceBar_Constructor_ThrowsWhenNegativeVolume()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            new PriceBar(DateTime.Today, 105m, 110m, 100m, 105m, -1m));
     }
 
     [Fact]
@@ -100,35 +116,20 @@ public class MarketModelsTests
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void Instrument_Constructor_ThrowsWhenSymbolIsEmpty(string symbol)
+    public void HistoricalSeries_Constructor_ThrowsWhenSymbolIsEmpty(string symbol)
     {
-        Assert.Throws<ArgumentException>(() =>
-            new Instrument(symbol, "Apple Inc.", AssetType.Stock, "USD", "NASDAQ"));
+        var bars = new List<PriceBar>();
+        Assert.Throws<ArgumentException>(() => new HistoricalSeries(symbol, bars));
     }
 
     [Fact]
-    public void PriceBar_Constructor_ThrowsWhenHighLessThanLow()
+    public void HistoricalSeries_Constructor_ThrowsWhenBarsIsNull()
     {
-        Assert.Throws<ArgumentException>(() =>
-            new PriceBar(DateTime.Today, 100m, 90m, 95m, 100m, 1000m));
+        Assert.Throws<ArgumentNullException>(() => new HistoricalSeries("AAPL", null!));
     }
 
     [Fact]
-    public void PriceBar_Constructor_ThrowsWhenOpenOutsideHighLowRange()
-    {
-        Assert.Throws<ArgumentOutOfRangeException>(() =>
-            new PriceBar(DateTime.Today, 120m, 110m, 100m, 105m, 1000m));
-    }
-
-    [Fact]
-    public void PriceBar_Constructor_ThrowsWhenNegativeVolume()
-    {
-        Assert.Throws<ArgumentOutOfRangeException>(() =>
-            new PriceBar(DateTime.Today, 105m, 110m, 100m, 105m, -1m));
-    }
-
-    [Fact]
-    public void HistoricalSeries_IsMutationSafe()
+    public void HistoricalSeries_Constructor_IsMutationSafe()
     {
         var mutableList = new List<PriceBar>
         {
@@ -136,6 +137,28 @@ public class MarketModelsTests
         };
 
         var series = new HistoricalSeries("AAPL", mutableList);
+        mutableList.Add(new PriceBar(new DateTime(2024, 1, 2), 105m, 112m, 103m, 109m, 180_000m));
+
+        Assert.Single(series.Bars);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void HistoricalSeries_InitSetter_ThrowsWhenSymbolIsEmpty(string symbol)
+    {
+        Assert.Throws<ArgumentException>(() => new HistoricalSeries { Symbol = symbol });
+    }
+
+    [Fact]
+    public void HistoricalSeries_InitSetter_IsMutationSafe()
+    {
+        var mutableList = new List<PriceBar>
+        {
+            new(new DateTime(2024, 1, 1), 100m, 110m, 98m, 105m, 200_000m)
+        };
+
+        var series = new HistoricalSeries { Symbol = "GOOG", Bars = mutableList };
         mutableList.Add(new PriceBar(new DateTime(2024, 1, 2), 105m, 112m, 103m, 109m, 180_000m));
 
         Assert.Single(series.Bars);
@@ -153,3 +176,4 @@ public class MarketModelsTests
         Assert.True(Enum.IsDefined(typeof(AssetType), assetType));
     }
 }
+
