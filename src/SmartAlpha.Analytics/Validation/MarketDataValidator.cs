@@ -83,23 +83,29 @@ public class MarketDataValidator
             return result;
         }
 
+        var seenDateIndices = new Dictionary<DateTime, int>();
+        DateTime? previousDate = null;
+
         for (int i = 0; i < series.Bars.Count; i++)
         {
-            var barResult = ValidatePriceBar(series.Bars[i], i, symbol);
+            var bar = series.Bars[i];
+            var barResult = ValidatePriceBar(bar, i, symbol);
             result.Errors.AddRange(barResult.Errors);
-        }
 
-        for (int i = 1; i < series.Bars.Count; i++)
-        {
-            var prev = series.Bars[i - 1].Date;
-            var curr = series.Bars[i].Date;
+            if (bar is null)
+                continue;
 
-            if (curr == prev)
+            if (seenDateIndices.TryGetValue(bar.Date, out var firstIndex))
                 result.Errors.Add(
-                    $"Series '{symbol}': duplicate timestamp {curr:yyyy-MM-dd} at indices {i - 1} and {i}.");
-            else if (curr < prev)
+                    $"Series '{symbol}': duplicate timestamp {bar.Date:yyyy-MM-dd} at indices {firstIndex} and {i}.");
+            else
+                seenDateIndices[bar.Date] = i;
+
+            if (previousDate.HasValue && bar.Date < previousDate.Value)
                 result.Errors.Add(
-                    $"Series '{symbol}': bar at index {i} ({curr:yyyy-MM-dd}) is out of order after {prev:yyyy-MM-dd}.");
+                    $"Series '{symbol}': bar at index {i} ({bar.Date:yyyy-MM-dd}) is out of order after {previousDate.Value:yyyy-MM-dd}.");
+
+            previousDate = bar.Date;
         }
 
         result.IsValid = result.Errors.Count == 0;

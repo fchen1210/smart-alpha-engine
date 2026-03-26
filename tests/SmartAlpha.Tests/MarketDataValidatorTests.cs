@@ -1,5 +1,6 @@
 using SmartAlpha.Analytics.Validation;
 using SmartAlpha.Core.Models.Market;
+using System.Reflection;
 
 namespace SmartAlpha.Tests;
 
@@ -45,6 +46,18 @@ public class MarketDataValidatorTests
         Assert.Contains("null", result.Errors[0]);
     }
 
+    [Fact]
+    public void ValidateInstrument_DefaultInstrument_ReturnsSymbolRequiredError()
+    {
+        var instrument = new Instrument();
+
+        var result = _validator.ValidateInstrument(instrument);
+
+        Assert.False(result.IsValid);
+        Assert.Single(result.Errors);
+        Assert.Contains("Symbol is required", result.Errors[0]);
+    }
+
     // ---------------------------------------------------------------------------
     // PriceBar validation
     // ---------------------------------------------------------------------------
@@ -77,6 +90,41 @@ public class MarketDataValidatorTests
 
         Assert.Contains("symbol='TSLA'", result.Errors[0]);
         Assert.Contains("index=3", result.Errors[0]);
+    }
+
+    [Fact]
+    public void ValidatePriceBar_NegativeLow_ReturnsError()
+    {
+        var bar = CreateInvalidPriceBar(low: -1m);
+
+        var result = _validator.ValidatePriceBar(bar, index: 2, symbol: "AAPL");
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("Low must be non-negative"));
+        Assert.Contains(result.Errors, e => e.Contains("symbol='AAPL'"));
+        Assert.Contains(result.Errors, e => e.Contains("index=2"));
+    }
+
+    [Fact]
+    public void ValidatePriceBar_HighLessThanMaxOpenClose_ReturnsError()
+    {
+        var bar = CreateInvalidPriceBar(high: 100m, open: 120m, close: 105m, low: 90m);
+
+        var result = _validator.ValidatePriceBar(bar);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("High (100) must be >= max(Open=120, Close=105)"));
+    }
+
+    [Fact]
+    public void ValidatePriceBar_LowGreaterThanMinOpenClose_ReturnsError()
+    {
+        var bar = CreateInvalidPriceBar(low: 110m, open: 100m, close: 115m, high: 120m);
+
+        var result = _validator.ValidatePriceBar(bar);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("Low (110) must be <= min(Open=100, Close=115)"));
     }
 
     // ---------------------------------------------------------------------------
@@ -162,6 +210,42 @@ public class MarketDataValidatorTests
     }
 
     [Fact]
+    public void ValidateSeries_NonAdjacentDuplicateTimestamps_ReturnsError()
+    {
+        var bars = new List<PriceBar>
+        {
+            new(new DateTime(2024, 1, 1), 100m, 110m, 98m, 105m, 200_000m),
+            new(new DateTime(2024, 1, 3), 105m, 112m, 103m, 109m, 180_000m),
+            new(new DateTime(2024, 1, 2), 106m, 113m, 104m, 108m, 170_000m),
+            new(new DateTime(2024, 1, 1), 101m, 111m, 99m, 104m, 160_000m)
+        };
+        var series = new HistoricalSeries("NFLX", bars);
+
+        var result = _validator.ValidateSeries(series);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("duplicate timestamp 2024-01-01"));
+    }
+
+    [Fact]
+    public void ValidateSeries_NullBarEntry_ReturnsErrorWithoutThrowing()
+    {
+        var bars = new List<PriceBar>
+        {
+            new(new DateTime(2024, 1, 1), 100m, 110m, 98m, 105m, 200_000m),
+            null!,
+            new(new DateTime(2024, 1, 3), 105m, 112m, 103m, 109m, 180_000m)
+        };
+        var series = new HistoricalSeries("META", bars);
+
+        var result = _validator.ValidateSeries(series);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("PriceBar cannot be null."));
+        Assert.Contains(result.Errors, e => e.Contains("index=1"));
+    }
+
+    [Fact]
     public void ValidateSeries_MultipleIssues_ReturnsAllErrors()
     {
         // Unsorted AND duplicate in same series
@@ -194,5 +278,36 @@ public class MarketDataValidatorTests
 
         Assert.True(result.IsValid);
         Assert.Empty(result.Errors);
+    }
+
+    private static PriceBar CreateInvalidPriceBar(
+        decimal open = 100m,
+        decimal high = 110m,
+        decimal low = 90m,
+        decimal close = 105m,
+        decimal volume = 1_000m,
+        DateTime? date = null)
+    {
+        var validSeedDate = new DateTime(2024, 1, 1);
+        var bar = new PriceBar(validSeedDate, 100m, 110m, 90m, 105m, 1_000m);
+        var type = typeof(PriceBar);
+
+        SetBackingField(type, bar, "<Date>k__BackingField", date ?? new DateTime(2024, 1, 1));
+        SetBackingField(type, bar, "<Open>k__BackingField", open);
+        SetBackingField(type, bar, "<High>k__BackingField", high);
+        SetBackingField(type, bar, "<Low>k__BackingField", low);
+        SetBackingField(type, bar, "<Close>k__BackingField", close);
+        SetBackingField(type, bar, "<Volume>k__BackingField", volume);
+
+        return bar;
+    }
+
+    private static void SetBackingField(Type type, object instance, string fieldName, object value)
+    {
+        var field = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+        if (field is null)
+            throw new InvalidOperationException($"Field '{fieldName}' not found on type {type.Name}.");
+
+        field.SetValue(instance, value);
     }
 }
