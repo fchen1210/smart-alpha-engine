@@ -39,6 +39,9 @@ public class MarketDataCsvLoader : IMarketDataCsvLoader
         if (string.IsNullOrWhiteSpace(options.Symbol))
             throw new ArgumentException("Symbol must be provided in CsvLoaderOptions.", nameof(options));
 
+        if (string.IsNullOrWhiteSpace(options.DateFormat))
+            throw new ArgumentException("DateFormat must be a non-empty string in CsvLoaderOptions.", nameof(options));
+
         // Stream lines to avoid loading the entire file into memory at once.
         using var enumerator = File.ReadLines(filePath).GetEnumerator();
 

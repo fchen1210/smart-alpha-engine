@@ -119,6 +119,18 @@ public class MarketDataCsvLoaderTests
             loader.Load("   ", DefaultOptions()));
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Load_NullOrEmptyDateFormat_ThrowsArgumentException(string? dateFormat)
+    {
+        var loader = new MarketDataCsvLoader();
+        var options = new CsvLoaderOptions { Symbol = "AAPL", DateFormat = dateFormat! };
+        Assert.Throws<ArgumentException>(() =>
+            loader.Load(CsvPath("aapl_2024.csv"), options));
+    }
+
     // -------------------------------------------------------------------------
     // Error: missing required columns
     // -------------------------------------------------------------------------
