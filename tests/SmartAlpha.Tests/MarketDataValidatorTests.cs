@@ -54,8 +54,11 @@ public class MarketDataValidatorTests
         var result = _validator.ValidateInstrument(instrument);
 
         Assert.False(result.IsValid);
-        Assert.Single(result.Errors);
+        Assert.Equal(4, result.Errors.Count);
         Assert.Contains("Symbol is required", result.Errors[0]);
+        Assert.Contains(result.Errors, e => e.Contains("Name is required"));
+        Assert.Contains(result.Errors, e => e.Contains("Currency is required"));
+        Assert.Contains(result.Errors, e => e.Contains("Exchange is required"));
     }
 
     // ---------------------------------------------------------------------------
@@ -292,22 +295,26 @@ public class MarketDataValidatorTests
         var bar = new PriceBar(validSeedDate, 100m, 110m, 90m, 105m, 1_000m);
         var type = typeof(PriceBar);
 
-        SetBackingField(type, bar, "<Date>k__BackingField", date ?? new DateTime(2024, 1, 1));
-        SetBackingField(type, bar, "<Open>k__BackingField", open);
-        SetBackingField(type, bar, "<High>k__BackingField", high);
-        SetBackingField(type, bar, "<Low>k__BackingField", low);
-        SetBackingField(type, bar, "<Close>k__BackingField", close);
-        SetBackingField(type, bar, "<Volume>k__BackingField", volume);
+        SetProperty(type, bar, "Date", date ?? new DateTime(2024, 1, 1));
+        SetProperty(type, bar, "Open", open);
+        SetProperty(type, bar, "High", high);
+        SetProperty(type, bar, "Low", low);
+        SetProperty(type, bar, "Close", close);
+        SetProperty(type, bar, "Volume", volume);
 
         return bar;
     }
 
-    private static void SetBackingField(Type type, object instance, string fieldName, object value)
+    private static void SetProperty(Type type, object instance, string propertyName, object value)
     {
-        var field = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-        if (field is null)
-            throw new InvalidOperationException($"Field '{fieldName}' not found on type {type.Name}.");
+        var property = type.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        if (property is null)
+            throw new InvalidOperationException($"Property '{propertyName}' not found on type {type.Name}.");
 
-        field.SetValue(instance, value);
+        var setMethod = property.GetSetMethod(nonPublic: true);
+        if (setMethod is null)
+            throw new InvalidOperationException($"Property '{propertyName}' on type {type.Name} does not have a setter.");
+
+        setMethod.Invoke(instance, new[] { value });
     }
 }
