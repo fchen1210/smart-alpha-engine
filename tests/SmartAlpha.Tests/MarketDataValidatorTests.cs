@@ -55,10 +55,10 @@ public class MarketDataValidatorTests
 
         Assert.False(result.IsValid);
         Assert.Equal(4, result.Errors.Count);
-        Assert.Contains("Symbol is required", result.Errors[0]);
-        Assert.Contains(result.Errors, e => e.Contains("Name is required"));
-        Assert.Contains(result.Errors, e => e.Contains("Currency is required"));
-        Assert.Contains(result.Errors, e => e.Contains("Exchange is required"));
+        Assert.Contains(result.Errors, e => e.Contains("Symbol is required"));
+        Assert.Contains("Instrument '<unknown>': Name is required and cannot be empty.", result.Errors);
+        Assert.Contains("Instrument '<unknown>': Currency is required and cannot be empty.", result.Errors);
+        Assert.Contains("Instrument '<unknown>': Exchange is required and cannot be empty.", result.Errors);
     }
 
     // ---------------------------------------------------------------------------
@@ -313,7 +313,8 @@ public class MarketDataValidatorTests
 
         var setMethod = property.GetSetMethod(nonPublic: true);
         if (setMethod is null)
-            throw new InvalidOperationException($"Property '{propertyName}' on type {type.Name} does not have a setter.");
+            throw new InvalidOperationException(
+                $"Property '{propertyName}' on type {type.Name} does not have an accessible setter (including non-public).");
 
         setMethod.Invoke(instance, new[] { value });
     }

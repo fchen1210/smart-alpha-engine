@@ -19,17 +19,21 @@ public class MarketDataValidator
         if (string.IsNullOrWhiteSpace(instrument.Symbol))
             result.Errors.Add("Instrument: Symbol is required and cannot be empty.");
 
+        var symbolForMessage = string.IsNullOrWhiteSpace(instrument.Symbol)
+            ? "<unknown>"
+            : instrument.Symbol;
+
         if (string.IsNullOrWhiteSpace(instrument.Name))
-            result.Errors.Add($"Instrument '{instrument.Symbol}': Name is required and cannot be empty.");
+            result.Errors.Add($"Instrument '{symbolForMessage}': Name is required and cannot be empty.");
 
         if (!Enum.IsDefined(typeof(AssetType), instrument.AssetType))
-            result.Errors.Add($"Instrument '{instrument.Symbol}': AssetType '{(int)instrument.AssetType}' is not a valid value.");
+            result.Errors.Add($"Instrument '{symbolForMessage}': AssetType '{(int)instrument.AssetType}' is not a valid value.");
 
         if (string.IsNullOrWhiteSpace(instrument.Currency))
-            result.Errors.Add($"Instrument '{instrument.Symbol}': Currency is required and cannot be empty.");
+            result.Errors.Add($"Instrument '{symbolForMessage}': Currency is required and cannot be empty.");
 
         if (string.IsNullOrWhiteSpace(instrument.Exchange))
-            result.Errors.Add($"Instrument '{instrument.Symbol}': Exchange is required and cannot be empty.");
+            result.Errors.Add($"Instrument '{symbolForMessage}': Exchange is required and cannot be empty.");
 
         result.IsValid = result.Errors.Count == 0;
         return result;
