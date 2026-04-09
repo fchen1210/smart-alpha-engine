@@ -4,11 +4,9 @@ AI-driven portfolio and market analysis engine designed to monitor risk, analyze
 
 ---
 
-# Vision
+## Vision
 
-Smart Alpha Engine aims to become an intelligent decision-support system for investors.
-
-Instead of reacting to markets blindly, this engine helps users:
+Smart Alpha Engine aims to become an intelligent decision-support system for investors. Instead of reacting to markets blindly, this engine helps users:
 
 - Understand market conditions
 - Evaluate portfolio risk
@@ -16,285 +14,223 @@ Instead of reacting to markets blindly, this engine helps users:
 - Generate structured daily insights
 - Suggest allocation adjustments based on risk profile
 
-The long-term vision is to evolve into an **AI-powered portfolio intelligence platform**.
+The long-term vision is to evolve into an AI-powered portfolio intelligence platform — with **Human in the Loop** as a core design principle. The engine provides analysis and recommendations; final decisions always rest with the investor.
 
 ---
 
-# Core Objectives
+## Architecture Overview
 
-This project focuses on four primary capabilities:
+The system is organized into 6 layers, from raw user input to final human decision.
 
-## 1. Market Data Aggregation
+```
+Users (Portfolio Holdings)
+        │
+        ▼
+C# Data Engine  ─── Yahoo Finance · Alpha Vantage · SEC EDGAR · Polygon.io
+        │
+        ▼
+Data Buckets
+  ├── Technical Indicators  (RSI · MACD · Bollinger Bands)
+  ├── Market Data           (S&P 500 · Nasdaq · VIX)
+  ├── Fundamentals / Raw    (10-K · 10-Q · PE/PB)
+  └── Macro Sentiment       (Gold · BTC · TNX)
+        │
+        ▼  ─── Claude / GPT API ───
+6 AI Agents
+  Row A (parallel):
+  ├── Technical Analysis Agent  — Trends · Signals · Support & Resistance
+  ├── Portfolio Mgmt Agent      — Positions · Weights · Concentration
+  ├── Risk Mgmt Agent           — Drawdown · Beta · Risk Alerts
+  └── Market Feeling Agent      — Macro Sentiment · Safe-Haven Signals  (optional / future)
 
-Collect structured market data from multiple sources.
-
-Examples:
-
-- Stock and ETF prices
-- Volatility indicators (VIX)
-- Interest rates
-- FX rates
-- Commodities (Gold, Oil, etc.)
-- Macro indicators (future expansion)
-
-Data frequency:
-
-- Daily (initial version)
-- Intraday (future version)
-
----
-
-## 2. Market State Analysis
-
-Transform raw data into interpretable market signals.
-
-Examples:
-
-- Risk On / Risk Off detection
-- Volatility regime classification
-- Rate pressure detection
-- Dollar strength / weakness
-- Sector or asset-class environment
-
-Outputs:
-
-- Market condition summary
-- Risk environment classification
-- Regime tagging
+  Row B (synthesizing):
+  ├── Accounting Agent          — P&L · Return Rate · Cost Basis · Per-Portfolio Calculation
+  └── Value Calculation Agent   — DCF · PE/PB · Intrinsic Value · Multiple Valuation Models
+        │
+        ▼
+Consolidated Report
+  Daily closing report + intraday real-time alerts
+        │
+        ▼
+You — Final Decision  (Human in the Loop)
+```
 
 ---
 
-## 3. Portfolio Risk Analysis
+## AI Agent Details
 
-Analyze a user's portfolio structure.
+### Row A — Parallel Analysis
 
-Inputs:
+| Agent | Responsibility | Data Sources |
+|---|---|---|
+| **Technical Analysis Agent** | Identify trends, trading signals, support & resistance levels | Technical indicators (RSI · MACD · Bollinger Bands) |
+| **Portfolio Mgmt Agent** | Track multiple portfolios, analyze position weights and concentration | User holdings · Market data |
+| **Risk Mgmt Agent** | Calculate drawdown and Beta, trigger risk alerts | Market data · Holdings data |
+| **Market Feeling Agent** | Read macro sentiment, identify safe-haven signals *(optional)* | Gold · BTC · TNX · VIX |
 
-- Holdings
-- Weights
-- Cash allocation
-- Asset classes
-- Risk tolerance
-- Investment style
+### Row B — Synthesis
 
-Outputs:
-
-- Portfolio risk level
-- Concentration detection
-- Drawdown sensitivity estimation
-- Exposure imbalance detection
-- Risk alerts
+| Agent | Responsibility | Data Sources |
+|---|---|---|
+| **Accounting Agent** | Calculate P&L, return rate, and cost basis independently per portfolio | Holdings data · Portfolio Mgmt Agent |
+| **Value Calculation Agent** | DCF, PE/PB, Graham formula — multi-model intrinsic value estimation | Raw fundamentals (10-K · 10-Q) |
 
 ---
 
-## 4. Personalized Investment Insights
+## Data Sources (C# Engine)
 
-Generate structured commentary based on:
+The C# data engine is responsible for fetching, normalizing, and distributing market data to all agents.
 
-- Market conditions
-- Portfolio structure
-- Risk tolerance
-
-Outputs:
-
-- Daily portfolio commentary
-- Risk warnings
-- Allocation suggestions
-- Exposure adjustment ideas
+| Source | Data Type |
+|---|---|
+| Yahoo Finance | Stock/ETF prices, historical data |
+| Alpha Vantage | Technical indicators, real-time quotes |
+| SEC EDGAR | 10-K and 10-Q filings |
+| Polygon.io | Real-time market data, market depth |
 
 ---
 
-# MVP Scope (Phase 1)
+## Core Objectives
 
-The initial version focuses on **daily risk intelligence**, not trading automation.
+The project focuses on four primary capabilities:
 
-Included:
+**1. Market Data Aggregation** — Collect structured market data: stock/ETF prices, volatility (VIX), interest rates, FX, commodities, and macro indicators.
 
+**2. Market State Analysis** — Transform raw data into interpretable signals: Risk On/Off detection, volatility regime classification, rate pressure, dollar strength/weakness.
+
+**3. Portfolio Risk Analysis** — Analyze portfolio structure: risk level, concentration, drawdown sensitivity, exposure imbalance, and risk alerts.
+
+**4. Personalized Investment Insights** — Generate structured commentary: daily portfolio commentary, risk warnings, and allocation suggestions.
+
+---
+
+## Output: Daily Report
+
+The consolidated report combines outputs from all 6 agents into:
+
+- **Daily Closing Report** — End-of-day summary covering market state, portfolio performance, risk flags, and valuation signals
+- **Intraday Real-Time Alerts** — Triggered alerts for significant risk events or threshold breaches
+
+---
+
+## MVP Scope (Phase 1)
+
+Focused on daily risk intelligence, not trading automation.
+
+**Included:**
 - Daily market data ingestion
 - Basic market regime detection
 - Portfolio exposure analysis
 - Risk summary generation
 - Text-based daily report
 
-Not included (yet):
-
-- Real-time trading
-- Order execution
+**Not included (yet):**
+- Real-time trading / order execution
 - High-frequency data
 - Broker integration
 
 ---
 
-# High-Level Architecture
+## Tech Stack
 
-```
-Smart Alpha Engine
-│
-├── Data Layer
-│   ├── Market Data Fetcher
-│   ├── Portfolio Loader
-│   └── Data Storage
-│
-├── Analysis Layer
-│   ├── Market Analyzer
-│   ├── Risk Engine
-│   └── Exposure Calculator
-│
-├── Intelligence Layer
-│   ├── Insight Generator
-│   ├── Risk Reporter
-│   └── Allocation Advisor
-│
-├── Interface Layer
-│   ├── CLI (Phase 1)
-│   ├── Web API (Phase 2)
-│   └── Dashboard UI (Phase 3)
-```
+| Layer | Technology |
+|---|---|
+| Data Engine | C# (.NET) |
+| AI Agents | Claude API / GPT API |
+| Market Data | REST APIs (Yahoo Finance, Alpha Vantage, SEC EDGAR, Polygon.io) |
+| Configuration | JSON-based config |
+| Scheduling | Daily scheduled jobs |
+| Future | Python (data science), Azure / cloud, LLM-generated commentary |
 
 ---
 
-# Initial Tech Direction
-
-Primary language:
-
-- C# (.NET)
-
-Supporting tools:
-
-- REST APIs for market data
-- JSON-based configuration
-- Scheduled jobs (daily runs)
-
-Future expansion:
-
-- Python (data science / modeling)
-- Azure or cloud services
-- LLM-based commentary generation
-
----
-
-# Repository Structure (Planned)
+## Repository Structure (Planned)
 
 ```
 smart-alpha-engine/
-
-src/
-│
-├── SmartAlpha.Core
-├── SmartAlpha.Data
-├── SmartAlpha.Analytics
-├── SmartAlpha.Reporting
-├── SmartAlpha.API
-│
-tests/
-│
-├── SmartAlpha.Tests
-│
-docs/
-│
-├── architecture.md
-├── roadmap.md
-│
-scripts/
-│
-├── data-fetch
-├── daily-run
+├── src/
+│   ├── SmartAlpha.Core
+│   ├── SmartAlpha.Data
+│   ├── SmartAlpha.Analytics
+│   ├── SmartAlpha.Agents
+│   ├── SmartAlpha.Reporting
+│   └── SmartAlpha.API
+├── tests/
+│   └── SmartAlpha.Tests
+├── docs/
+│   ├── architecture.md
+│   └── roadmap.md
+└── scripts/
+    ├── data-fetch
+    └── daily-run
 ```
 
 ---
 
-# Example Use Case
+## Roadmap
 
-A user provides:
+**Phase 1 — Foundation**
+- Market data ingestion (C# engine)
+- Portfolio model & holdings loader
+- Basic risk metrics (drawdown · Beta · concentration)
+- Technical Analysis / Portfolio Mgmt / Risk Mgmt Agents
+- Daily report engine
 
-```
-Portfolio:
-
-SPY 40%
-QQQ 25%
-NVDA 15%
-Cash 20%
-```
-
-Engine generates:
-
-```
-Market State:
-Risk-Off Transition Detected
-
-Portfolio Risk:
-High concentration in tech sector
-
-Risk Note:
-Portfolio sensitive to volatility spikes
-
-Suggested Adjustment:
-Reduce single-stock exposure
-Increase defensive allocation
-```
-
----
-
-# Roadmap
-
-## Phase 1 — Foundation
-
-- Market data ingestion
-- Portfolio model
-- Basic risk metrics
-- Daily reporting engine
-
-## Phase 2 — Intelligence
-
-- Regime detection
-- Risk scoring models
+**Phase 2 — Intelligence**
+- Accounting Agent (P&L, cost basis per portfolio)
+- Value Calculation Agent (DCF, PE/PB, Graham)
+- Regime detection & risk scoring models
 - Multi-asset support
 - Web API
 
-## Phase 3 — Interface
-
+**Phase 3 — Interface**
 - Dashboard UI
-- Historical tracking
-- Visualization tools
+- Historical tracking & visualization
+- Intraday alert system
 
-## Phase 4 — AI Enhancement
-
-- LLM-generated insights
-- Personalized style detection
+**Phase 4 — AI Enhancement**
+- Market Feeling Agent (macro sentiment / safe-haven signals)
+- LLM-generated personalized insights
 - Scenario simulation
+- Per-user investment style detection
 
 ---
 
-# Design Principles
+## Example Use Case
 
-- Modular architecture
-- Clear separation of concerns
-- Testable components
-- Config-driven behavior
-- Extensible data sources
+A user provides two portfolios:
 
----
+- **Portfolio 1:** SPY 40%, QQQ 25%, NVDA 15%, Cash 20%
+- **Portfolio 2:** AAPL 30%, MSFT 30%, Cash 40%
 
-# Status
+Engine generates:
 
-Early-stage development.
+> **Market State:** Risk-Off Transition Detected  
+> **Portfolio 1 Risk:** High concentration in tech sector — sensitive to volatility spikes  
+> **Portfolio 2 Risk:** Low diversification — single-sector exposure  
+> **Valuation:** NVDA trading above DCF intrinsic value by ~35%  
+> **Suggested Action:** Reduce single-stock exposure; increase defensive allocation
 
-Architecture and core models are currently being defined.
-
----
-
-# Long-Term Goal
-
-Build an intelligent portfolio intelligence system that helps investors:
-
-- Reduce unnecessary risk
-- Improve allocation discipline
-- Make structured decisions
-- Understand market regimes
-- Maintain consistent investment behavior
+Final decision: **You.**
 
 ---
 
-# License
+## Design Principles
+
+- Modular, agent-based architecture
+- Clear separation of concerns between data, analysis, and intelligence layers
+- Human in the Loop — AI advises, humans decide
+- Testable components with config-driven behavior
+- Extensible data sources and agent plugins
+
+---
+
+## Status
+
+Early-stage development. Architecture defined (v2). Core C# data engine and agent framework in progress.
+
+---
+
+## License
 
 To be defined.
