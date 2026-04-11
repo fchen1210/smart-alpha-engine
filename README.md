@@ -57,7 +57,126 @@ You — Final Decision  (Human in the Loop)
 
 ---
 
+---
+
+## Runtime Flow — Daily Execution Lifecycle
+
+This section describes how the system operates during a normal daily cycle.
+
+**Example Daily Execution**
+
+08:00 — Fetch market data from external providers  
+08:02 — Normalize raw datasets into unified schema  
+08:03 — Compute technical indicators and macro metrics  
+08:05 — Run Market Regime Detection  
+08:06 — Analyze portfolio structure and exposure  
+08:07 — Compute risk metrics  
+08:08 — Generate consolidated daily report  
+08:09 — Save report snapshot and trigger alerts if thresholds exceeded  
+
+**Execution Modes**
+
+- **Daily Mode** — End-of-day full analysis (primary mode)
+- **Intraday Mode** — Lightweight risk monitoring (future)
+- **Backtest Mode** — Historical replay analysis (future)
+
+
 ## AI Agent Details
+---
+
+## Agent Priority Roadmap
+
+All six agents are part of the long-term architecture.  
+However, implementation follows strict execution priority.
+
+---
+
+## System Maturity Levels
+
+The system evolves through clearly defined maturity stages.
+
+### Level 1 — Functional
+
+- Market data ingestion works
+- Portfolio can be loaded
+- Basic risk metrics calculated
+- Daily report generated
+
+**Target:** First usable system
+
+---
+
+### Level 2 — Reliable
+
+- Full test coverage for risk metrics
+- Stable daily execution
+- Consistent historical outputs
+
+**Target:** Trustworthy system
+
+---
+
+### Level 3 — Intelligent
+
+- Regime detection models
+- Risk scoring system
+- Multi-portfolio support
+
+**Target:** Insightful system
+
+---
+
+### Level 4 — Scalable
+
+- Cloud deployment
+- Dashboard interface
+- Multi-user capability
+
+**Target:** Production-ready system
+
+### Phase 1 — Core Agents (MVP Priority)
+
+These agents are implemented first and form the operational backbone.
+
+1. **Portfolio Mgmt Agent**
+   - Position tracking
+   - Portfolio structure analysis
+   - Exposure measurement
+
+2. **Risk Mgmt Agent**
+   - Drawdown calculation
+   - Beta estimation
+   - Risk alert triggers
+
+3. **Market Regime Agent**
+   - Risk-On / Risk-Off classification
+   - Volatility regime detection
+   - Macro stress signals
+
+These three agents enable the first functional daily report.
+
+---
+
+### Phase 2 — Supporting Agents
+
+4. **Accounting Agent**
+   - P&L calculation
+   - Cost basis tracking
+
+5. **Technical Analysis Agent**
+   - Trend identification
+   - Signal detection
+
+---
+
+### Phase 3 — Advanced Intelligence
+
+6. **Value Calculation Agent**
+   - Intrinsic value models
+   - Multi-model valuation
+
+7. **Market Feeling Agent** *(optional / future)*
+   - Macro sentiment modeling
 
 ### Row A — Parallel Analysis
 
@@ -104,6 +223,35 @@ The project focuses on four primary capabilities:
 
 ---
 
+---
+
+## Core Risk Metrics
+
+The system evaluates portfolio safety using structured risk indicators.
+
+### Portfolio-Level Metrics
+
+- Max Drawdown
+- Rolling Drawdown
+- Portfolio Beta vs SPY
+- Portfolio Volatility
+- Cash Allocation Ratio
+- Risk Score (composite metric)
+
+### Exposure Metrics
+
+- Sector Concentration
+- Single Position Risk
+- Technology Sector Exposure
+- Geographic Exposure (future)
+- Asset-Class Exposure
+
+### Stress Sensitivity
+
+- Drawdown Sensitivity to Market Drops
+- Volatility Shock Sensitivity
+- Rate Shock Sensitivity (future)
+
 ## Output: Daily Report
 
 The consolidated report combines outputs from all 6 agents into:
@@ -116,6 +264,22 @@ The consolidated report combines outputs from all 6 agents into:
 ## MVP Scope (Phase 1)
 
 Focused on daily risk intelligence, not trading automation.
+
+---
+
+## Non-Goals (Phase 1)
+
+To maintain focus, the following features are intentionally excluded:
+
+- Automated trading execution
+- Broker API integration
+- High-frequency trading
+- Leverage management
+- Short-term price prediction
+- Market timing claims
+- Complex derivatives modeling
+
+Phase 1 focuses strictly on **risk intelligence**, not trading automation.
 
 **Included:**
 - Daily market data ingestion
@@ -195,6 +359,39 @@ smart-alpha-engine/
 - Per-user investment style detection
 
 ---
+---
+
+## Portfolio Input Schema
+
+Portfolios are provided as structured JSON files.
+
+
+**Example:**
+
+```json
+{
+  "portfolioName": "Main Portfolio",
+  "baseCurrency": "USD",
+  "positions": [
+    {
+      "symbol": "SPY",
+      "weight": 0.40
+    },
+    {
+      "symbol": "QQQ",
+      "weight": 0.25
+    },
+    {
+      "symbol": "NVDA",
+      "weight": 0.15
+    },
+    {
+      "symbol": "CASH",
+      "weight": 0.20
+    }
+  ]
+}
+```
 
 ## Example Use Case
 
@@ -202,6 +399,7 @@ A user provides two portfolios:
 
 - **Portfolio 1:** SPY 40%, QQQ 25%, NVDA 15%, Cash 20%
 - **Portfolio 2:** AAPL 30%, MSFT 30%, Cash 40%
+
 
 Engine generates:
 
