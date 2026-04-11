@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\src\SmartAlpha.Core\SmartAlpha.Core.csproj" />
     <ProjectReference Include="..\..\src\SmartAlpha.Analytics\SmartAlpha.Analytics.csproj" />
     <ProjectReference Include="..\..\src\SmartAlpha.Data\SmartAlpha.Data.csproj" />
+    <ProjectReference Include="..\..\src\SmartAlpha.API\SmartAlpha.API.csproj" />
   </ItemGroup>
 
   <ItemGroup>
