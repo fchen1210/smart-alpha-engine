@@ -47,4 +47,15 @@ public class DailyPortfolioRiskWorkflowTests
             File.Delete(emptyPortfolioPath);
         }
     }
+
+    [Fact]
+    public async Task RunAsync_WhenCancelled_ThrowsOperationCanceledException()
+    {
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        var workflow = new DailyPortfolioRiskWorkflow(ValidPortfolioPath);
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() => workflow.RunAsync(cts.Token));
+    }
 }

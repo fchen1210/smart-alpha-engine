@@ -14,11 +14,12 @@ public class DailyPortfolioRiskWorkflow
         _portfolioFilePath = portfolioFilePath;
     }
 
-    public async Task<string> RunAsync(CancellationToken cancellationToken = default)
+    public Task<string> RunAsync(CancellationToken cancellationToken = default)
     {
         Console.WriteLine("[DailyPortfolioRiskWorkflow] Starting Daily Portfolio Risk Workflow...");
 
         // Step 1: Portfolio loading
+        cancellationToken.ThrowIfCancellationRequested();
         Console.WriteLine("[DailyPortfolioRiskWorkflow] Step 1: Loading portfolio...");
         var loader = new PortfolioLoader();
         var portfolio = loader.LoadFromFile(_portfolioFilePath);
@@ -34,23 +35,27 @@ public class DailyPortfolioRiskWorkflow
                 Console.WriteLine($"  - {error}");
             }
 
-            return "Daily Portfolio Risk Workflow failed: portfolio validation errors.";
+            return Task.FromResult("Daily Portfolio Risk Workflow failed: portfolio validation errors.");
         }
 
         // Step 2: Market data retrieval
+        cancellationToken.ThrowIfCancellationRequested();
         Console.WriteLine("[DailyPortfolioRiskWorkflow] Step 2: Retrieving market data...");
         // TODO: Integrate market data provider
 
         // Step 3: Risk analysis
+        cancellationToken.ThrowIfCancellationRequested();
         Console.WriteLine("[DailyPortfolioRiskWorkflow] Step 3: Running risk analysis...");
         var analyzer = new PortfolioAnalyzer();
         var summary = analyzer.Analyze(portfolio);
 
         // Step 4: AI analysis
+        cancellationToken.ThrowIfCancellationRequested();
         Console.WriteLine("[DailyPortfolioRiskWorkflow] Step 4: Running AI analysis...");
         // TODO: Integrate AI provider
 
         // Step 5: Report generation
+        cancellationToken.ThrowIfCancellationRequested();
         Console.WriteLine("[DailyPortfolioRiskWorkflow] Step 5: Generating report...");
         var formatter = new PortfolioSummaryFormatter();
         var report = formatter.Format(summary);
@@ -59,6 +64,6 @@ public class DailyPortfolioRiskWorkflow
 
         Console.WriteLine("[DailyPortfolioRiskWorkflow] Workflow completed successfully.");
 
-        return "Daily Portfolio Risk Workflow completed successfully.";
+        return Task.FromResult("Daily Portfolio Risk Workflow completed successfully.");
     }
 }
