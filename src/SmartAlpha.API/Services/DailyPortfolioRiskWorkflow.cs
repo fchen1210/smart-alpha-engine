@@ -46,6 +46,17 @@ public class DailyPortfolioRiskWorkflow
         // Step 3: Risk analysis
         cancellationToken.ThrowIfCancellationRequested();
         Console.WriteLine("[DailyPortfolioRiskWorkflow] Step 3: Running risk analysis...");
+
+        var nonCashHoldings = portfolio.Holdings
+            .Where(h => !string.Equals(h.Ticker, "CASH", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (nonCashHoldings.Count == 0)
+        {
+            Console.WriteLine("[DailyPortfolioRiskWorkflow] No equity holdings found; cannot run risk analysis.");
+            return Task.FromResult("Daily Portfolio Risk Workflow failed: portfolio contains no equity holdings for analysis.");
+        }
+
         var analyzer = new PortfolioAnalyzer();
         var summary = analyzer.Analyze(portfolio);
 
@@ -62,8 +73,8 @@ public class DailyPortfolioRiskWorkflow
 
         Console.WriteLine(report);
 
-        Console.WriteLine("[DailyPortfolioRiskWorkflow] Workflow completed successfully.");
+        Console.WriteLine("[DailyPortfolioRiskWorkflow] Workflow completed (market data and AI analysis pending).");
 
-        return Task.FromResult("Daily Portfolio Risk Workflow completed successfully.");
+        return Task.FromResult("Daily Portfolio Risk Workflow completed (partial: market data and AI analysis not yet implemented).");
     }
 }

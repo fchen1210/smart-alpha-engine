@@ -17,7 +17,7 @@ public class DailyPortfolioRiskWorkflowTests
 
         var result = await workflow.RunAsync();
 
-        Assert.Equal("Daily Portfolio Risk Workflow completed successfully.", result);
+        Assert.Equal("Daily Portfolio Risk Workflow completed (partial: market data and AI analysis not yet implemented).", result);
     }
 
     [Fact]
@@ -45,6 +45,27 @@ public class DailyPortfolioRiskWorkflowTests
         finally
         {
             File.Delete(emptyPortfolioPath);
+        }
+    }
+
+    [Fact]
+    public async Task RunAsync_WithCashOnlyPortfolio_ReturnsFailureResult()
+    {
+        var cashOnlyPath = Path.Combine(Path.GetTempPath(), $"cash_only_{Guid.NewGuid()}.json");
+        await File.WriteAllTextAsync(cashOnlyPath, """{ "holdings": [{ "ticker": "CASH", "weight": 1.0, "assetClass": "Cash" }] }""");
+
+        try
+        {
+            var workflow = new DailyPortfolioRiskWorkflow(cashOnlyPath);
+
+            var result = await workflow.RunAsync();
+
+            Assert.Contains("failed", result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("no equity holdings", result, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            File.Delete(cashOnlyPath);
         }
     }
 
