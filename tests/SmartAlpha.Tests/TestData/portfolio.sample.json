@@ -1,0 +1,28 @@
+{
+  "holdings": [
+    { "ticker": "GOOG", "weight": 0.0410, "assetClass": "Equity"  },
+    { "ticker": "NVDA", "weight": 0.0901, "assetClass": "Equity"  },
+    { "ticker": "AMD",  "weight": 0.0641, "assetClass": "Equity"  },
+    { "ticker": "TSLA", "weight": 0.0241, "assetClass": "Equity"  },
+    { "ticker": "TSM",  "weight": 0.0144, "assetClass": "Equity"  },
+    { "ticker": "AMZN", "weight": 0.0187, "assetClass": "Equity"  },
+    { "ticker": "MSFT", "weight": 0.1533, "assetClass": "Equity"   },
+    { "ticker": "ASML", "weight": 0.0171, "assetClass": "Equity"  },
+    { "ticker": "PYPL", "weight": 0.1307, "assetClass": "Equity"  },
+    { "ticker": "TTWO", "weight": 0.0098, "assetClass": "Equity"  },
+    { "ticker": "U",    "weight": 0.0138, "assetClass": "Equity"  },
+    { "ticker": "META", "weight": 0.0193, "assetClass": "Equity"  },
+    { "ticker": "AAPL", "weight": 0.0079, "assetClass": "Equity"  },
+    { "ticker": "NFLX", "weight": 0.0260, "assetClass": "Equity"  },
+    { "ticker": "MA",   "weight": 0.0044, "assetClass": "Equity"  },
+    { "ticker": "JPM",  "weight": 0.0029, "assetClass": "Equity"  },
+    { "ticker": "TRIP", "weight": 0.0152, "assetClass": "Equity"  },
+    { "ticker": "ISRG", "weight": 0.0079, "assetClass": "Equity"  },
+    { "ticker": "LRCX", "weight": 0.0034, "assetClass": "Equity"  },
+    { "ticker": "AMGN", "weight": 0.0002, "assetClass": "Equity"  },
+    { "ticker": "INTU", "weight": 0.1051, "assetClass": "Equity"  },
+    { "ticker": "APD",  "weight": 0.0074, "assetClass": "Equity" },
+
+    { "ticker": "CASH", "weight": 0.2232, "assetClass": "Cash" }
+  ]
+}
